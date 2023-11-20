@@ -4,6 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAPIClient, useCurrentDocumentTitle, useViewport } from '..';
 import { useForm } from '@formily/react';
+import axios from 'axios';
+import { Method } from 'axios';
+import cloneDeep from 'lodash/cloneDeep';
+import CryptoJS from 'crypto-js';
 
 export const SignupPageContext = createContext<{
   [authType: string]: {
@@ -38,10 +42,36 @@ export const useSignup = (props?: UseSignupProps) => {
   const form = useForm();
   const api = useAPIClient();
   const { t } = useTranslation();
+
+  const encryptedString = CryptoJS.AES.encrypt('somerandomstring', 'secret').toString();
+  // const token: string = process.env.REACT_APP_SECRET_KEY;
+  // console.log(token);
+
   return {
     async run() {
       await form.submit();
-      await api.auth.signUp(form.values, props?.authenticator);
+      const response = await api.auth.signUp(form.values, props?.authenticator);
+
+      const values = cloneDeep(form.values);
+
+      const config = {
+        url: '/api/email:signupEmail',
+        method: 'POST' as Method,
+        headers: {
+          Authorization: `Bearer ${encryptedString}`,
+        },
+        data: {
+          email: values.email,
+          page: ['signupEmail', 'signupEmailSubject'],
+        },
+      };
+      try {
+        await axios(config);
+      } catch (err) {
+        window.alert('signup mail error');
+        console.log(err);
+      }
+
       message.success(props?.message?.success || t('Sign up successfully, and automatically jump to the sign in page'));
       setTimeout(() => {
         navigate('/signin');
