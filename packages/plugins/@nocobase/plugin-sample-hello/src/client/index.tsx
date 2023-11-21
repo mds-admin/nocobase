@@ -56,26 +56,12 @@ const HelloProvider = React.memo((props) => {
 
   return (
 
-    <SettingsCenterProvider
-      settings={{
-        'sample-hello': {
-          title: 'Hello',
-          icon: 'ApiOutlined',
-          tabs: {
-            tab1: {
-              title: 'Hello tab',
-              component: () => <SampleDisplay />,
-            },
-          
-          },
-        },
-      }}
-    >
+
       <SchemaComponentOptions components={{ HelloDesigner, HelloBlockInitializer }}>
         {/* This renders the UI */}
         <SchemaInitializerContext.Provider value={items}>{props.children}</SchemaInitializerContext.Provider>
       </SchemaComponentOptions>
-    </SettingsCenterProvider>
+   
 
   );
 });

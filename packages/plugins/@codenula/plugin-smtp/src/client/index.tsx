@@ -4,7 +4,7 @@ import {
   SchemaComponentOptions,
   SchemaInitializer,
   SchemaInitializerContext,
-  SettingsCenterProvider,
+
 } from '@nocobase/client';
 // import { Button, Card, Input } from 'antd';
 import React, { useContext } from 'react';
@@ -48,25 +48,11 @@ const SmtpRequestProviderNew = React.memo((props) => {
     component: 'SmtpRequestBlockInitializer',
   });
   return (
-    <SettingsCenterProvider
-      settings={{
-        'sample-request': {
-          title: 'Smtp Request',
-          icon: 'ApiOutlined',
-          tabs: {
-            tab1: {
-              title: 'Smtp Request',
-              // @ts-ignore
-              component: () => <SmtpRequest />,
-            },
-          },
-        },
-      }}
-    >
+
       <SchemaComponentOptions components={{ SmtpRequestDesigner, SmtpRequestBlockInitializer }}>
         <SchemaInitializerContext.Provider value={items}>{props.children}</SchemaInitializerContext.Provider>
       </SchemaComponentOptions>
-    </SettingsCenterProvider>
+    
   );
 });
 SmtpRequestProviderNew.displayName = 'SmtpRequestProviderNew';
@@ -82,6 +68,12 @@ export class PluginSmtpClient extends Plugin {
   async load() {
     this.app.addProvider(SmtpRequestProviderNew);
     this.app.use(SmtpRequestProvider, this.options);
+    this.app.pluginSettingsManager.add('smtp', {
+      title: 'Smtp', // menu title and page title
+      icon: 'ApiOutlined', // menu icon
+      //@ts-ignore
+      Component: ()=><SmtpRequest/>,
+    });
   }
 }
 

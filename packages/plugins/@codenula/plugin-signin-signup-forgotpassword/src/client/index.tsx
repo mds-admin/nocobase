@@ -5,8 +5,9 @@ import {
   SchemaComponentOptions,
   SchemaInitializer,
   SchemaInitializerContext,
-  SettingsCenterProvider,
+
 } from '@nocobase/client';
+import { Outlet } from 'react-router-dom';
 
 import { ResetPassword } from './pages/ResetPassword';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +22,11 @@ import CustomSignupPage from './pages/CustomSignupPage';
 import CustomForgotPasswordPage from './pages/CustomForgotPasswordPage';
 import EmailBody from './components/EmailBody';
 
+const SettingPageLayout = () => (
+  <div>
+      <Outlet />
+  </div>
+);
 export const SigninSignupInitializer = (props) => {
   const { insert } = props;
   const { t } = useTranslation();
@@ -56,36 +62,11 @@ const SigninSignpProviderNew = React.memo((props) => {
     component: 'SigninSignupInitializer',
   });
   return (
-    <SettingsCenterProvider
-      settings={{
-        'signin-signup-forgotpassword': {
-          title: 'Email templates',
-          icon: 'ApiOutlined',
-          tabs: {
-            tab1: {
-              title: 'Signin',
-              component: () => <EmailBody page="signinEmail" subject="signinEmailSubject" />,
-            },
-            tab2: {
-              title: 'Signup',
-              component: () => <EmailBody page="signupEmail" subject="signupEmailSubject" />,
-            },
-            tab3: {
-              title: 'Confirm reset password ',
-              component: () => <EmailBody page="confirmForgotPasswordEmail" subject="confirmForgotPasswordEmailSubject" />,
-            },
-            tab4: {
-              title: 'Reset password success ',
-              component: () => <EmailBody page="forgotPasswordEmail" subject="forgotPasswordEmailSubject" />,
-            },
-          },
-        },
-      }}
-    >
+ 
       <SchemaComponentOptions components={{ SigninSignupDesigner, SigninSignupInitializer }}>
         <SchemaInitializerContext.Provider value={items}>{props.children}</SchemaInitializerContext.Provider>
       </SchemaComponentOptions>
-    </SettingsCenterProvider>
+
   );
 });
 SigninSignpProviderNew.displayName = 'SigninSignup';
@@ -99,8 +80,42 @@ export class PluginSigninSignupForgotpasswordClient extends Plugin {
 
   // You can get and modify the app instance here
   async load() {
-    this.app.addProvider(SigninSignpProviderNew);
-    console.log(this.app);
+
+    this.app.pluginSettingsManager.add('signin-signup-forgotpassword', {
+      title: 'Email Template', // menu title and page title
+      icon: 'ApiOutlined', // menu icon
+      Component: ()=><SettingPageLayout />,
+    });
+    this.app.pluginSettingsManager.add('signin-signup-forgotpassword.signin', {
+      title: 'Signin', // menu title and page title
+      icon: 'ApiOutlined', // menu icon
+      Component: ()=><EmailBody page="signinEmail" subject="signinEmailSubject" />,
+    });
+  
+    this.app.pluginSettingsManager.add('signin-signup-forgotpassword.Reset-Password-success', {
+      title: 'Reset Password Success', // menu title and page title
+      icon: 'ApiOutlined', // menu icon
+      Component: ()=><EmailBody page="forgotPasswordEmail" subject="forgotPasswordEmailSubject" />,
+    });
+
+    this.app.pluginSettingsManager.add('signin-signup-forgotpassword.Reset-Password', {
+      title: 'Confirm Reset Password', // menu title and page title
+      icon: 'ApiOutlined', // menu icon
+      Component: ()=><EmailBody page="confirmForgotPasswordEmail" subject="confirmForgotPasswordEmailSubject"/>,
+    });
+
+    this.app.pluginSettingsManager.add('signin-signup-forgotpassword.signup', {
+      title: 'Signup', // menu title and page title
+      icon: 'ApiOutlined', // menu icon
+      Component: ()=> <EmailBody page="signupEmail" subject="signupEmailSubject" />,
+    });
+
+   
+   
+   
+    //<EmailBody page="signinEmail" subject="signinEmailSubject" />
+    // this.app.addProvider(SigninSignpProviderNew);
+    // console.log(this.app);
     this.addRoutes();
     this.app.addComponents({
       SigninPage: CustomSigninPage,
